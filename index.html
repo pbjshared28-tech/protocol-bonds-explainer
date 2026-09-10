@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Protocol Bonds — Stacks Bitcoin Staking, explained</title>
+  <meta name="description" content="A beginner briefing on Stacks Bitcoin Staking protocol bonds: the Genesis Bond, PoX-5, how yield is paid in bitcoin, and the risks — with worked numbers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #efe8d9;
+      --paper: #f7f2e8;
+      --ink: #161914;
+      --muted: #5b6156;
+      --line: #d4cbb8;
+      --forest: #1b3a30;
+      --forest-mid: #2c5a48;
+      --gold: #8a6a1f;
+      --gold-soft: #f1e4bf;
+      --example: #e4eee6;
+      --warn: #f4e6dc;
+      --warn-ink: #6e3a24;
+      --dark: #101612;
+      --dark-2: #1a221d;
+      --white: #fffdf8;
+      --shadow: 0 1px 0 rgba(22, 25, 20, 0.04), 0 12px 32px rgba(22, 25, 20, 0.06);
+      --radius: 14px;
+      --max: 72rem;
+      --prose: 41rem;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 4.75rem; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Newsreader", "Iowan Old Style", Georgia, serif;
+      font-size: 1.125rem;
+      line-height: 1.65;
+      font-optical-sizing: auto;
+    }
+
+    a { color: var(--forest-mid); }
+    a:hover { color: var(--forest); }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    .skip {
+      position: absolute;
+      left: 1rem;
+      top: -4rem;
+      background: var(--dark);
+      color: var(--paper);
+      padding: 0.5rem 0.8rem;
+      z-index: 80;
+    }
+    .skip:focus { top: 0.75rem; }
+
+    .ui { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+    header.site {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(239, 232, 217, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .bar {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0.7rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      min-width: 0;
+    }
+    .brand strong {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .brand span {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-family: "IBM Plex Sans", sans-serif;
+    }
+
+    nav.links { display: flex; flex-wrap: wrap; gap: 0.15rem 0.85rem; justify-content: flex-end; }
+    nav.links a {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      color: var(--muted);
+    }
+    nav.links a:hover { color: var(--ink); }
+    .nav-toggle {
+      display: none;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 0.4rem 0.6rem;
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.8rem;
+    }
+
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 1.25rem; }
+
+    .hero {
+      padding: 3.25rem 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .kicker {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      margin: 0 0 0.85rem;
+    }
+    h1 {
+      font-size: clamp(2.1rem, 5vw, 3.45rem);
+      line-height: 1.12;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 1rem;
+      max-width: 16ch;
+    }
+    .lede {
+      font-size: 1.28rem;
+      max-width: 40rem;
+      color: #2a2f28;
+      margin: 0 0 1.6rem;
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.4rem;
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+    .meta-row b { color: var(--ink); font-weight: 550; }
+
+    section { padding: 3.1rem 0; border-bottom: 1px solid var(--line); }
+    section > h2,
+    .split h2 {
+      font-size: clamp(1.65rem, 3vw, 2.15rem);
+      line-height: 1.2;
+      margin: 0 0 0.85rem;
+      letter-spacing: -0.015em;
+    }
+    .section-lead { max-width: var(--prose); margin: 0 0 1.5rem; color: #2b3029; }
+    p { margin: 0 0 1rem; }
+    p:last-child { margin-bottom: 0; }
+    .prose { max-width: var(--prose); }
+    h3 {
+      font-size: 1.28rem;
+      margin: 1.75rem 0 0.55rem;
+      letter-spacing: -0.01em;
+    }
+    h4 {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.95rem;
+      margin: 0 0 0.4rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.9rem;
+    }
+    .card, .callout, .step, .risk, .path, .stat {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .card { padding: 1.15rem 1.2rem 1.25rem; }
+    .card p, .callout p, .step p, .risk p, .path p { font-size: 1.02rem; }
+    .label {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      margin: 0 0 0.35rem;
+    }
+
+    .callout { padding: 1rem 1.15rem; }
+    .callout.key { background: var(--gold-soft); border-color: #e0cf96; }
+    .callout.ex { background: var(--example); border-color: #c5d6c8; }
+    .callout.note { background: var(--warn); border-color: #e4c8b5; }
+    .callout.dark {
+      background: var(--dark);
+      color: #e8e2d4;
+      border-color: #2a3530;
+    }
+    .callout.dark a { color: #e3c56a; }
+    .callout .label { margin-bottom: 0.25rem; }
+    .callout.dark .label { color: #d4b45a; }
+
+    .steps { display: grid; gap: 0.85rem; }
+    .step { padding: 1.1rem 1.2rem 1.2rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; }
+    .num {
+      font-family: "IBM Plex Mono", monospace;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 999px;
+      background: var(--forest);
+      color: var(--paper);
+      display: grid;
+      place-items: center;
+      font-size: 0.8rem;
+      margin-top: 0.15rem;
+    }
+    .step h3 { margin: 0 0 0.35rem; font-size: 1.15rem; }
+
+    .diagram {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.1rem 1rem 1.2rem;
+    }
+    .diagram svg { width: 100%; height: auto; display: block; }
+    .diagram figcaption {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.7rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.8rem;
+      margin: 1.25rem 0;
+    }
+    .stat { padding: 1rem 1.05rem; }
+    .stat .fig {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 1.35rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      margin: 0.15rem 0 0.25rem;
+    }
+    .stat p { font-size: 0.92rem; color: var(--muted); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.98rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    th, td {
+      text-align: left;
+      padding: 0.7rem 0.9rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      background: #efe8d6;
+    }
+    tr:last-child td { border-bottom: 0; }
+    td.numc { font-family: "IBM Plex Mono", monospace; font-size: 0.88rem; white-space: nowrap; }
+
+    .waterfall { display: grid; gap: 0.55rem; margin: 1rem 0 0; }
+    .tranche {
+      border-radius: 12px;
+      padding: 0.95rem 1.1rem;
+      color: var(--paper);
+    }
+    .t1 { background: #1b3a30; }
+    .t2 { background: #3d6a56; }
+    .t3 { background: #6b7a55; }
+    .tranche .who {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+    .tranche strong { display: block; font-size: 1.15rem; margin: 0.15rem 0; }
+
+    .paths { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+    .path { padding: 1.2rem 1.2rem 1.3rem; }
+    .badge {
+      display: inline-block;
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.15rem 0.5rem;
+      margin-bottom: 0.55rem;
+      color: var(--muted);
+    }
+    .badge.good { border-color: #9bb8a4; color: var(--forest); background: #e8f0ea; }
+    .badge.warn { border-color: #e0b89a; color: var(--warn-ink); background: var(--warn); }
+
+    .risks { display: grid; gap: 0.85rem; }
+    .risk { padding: 1.15rem 1.2rem 1.25rem; }
+    .risk h3 { margin: 0 0 0.45rem; font-size: 1.18rem; }
+
+    .src-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.55rem; }
+    .src-list a {
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 0.95rem;
+      text-decoration: none;
+      display: block;
+      padding: 0.7rem 0.85rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    .src-list a:hover { border-color: #b9ae95; }
+
+    footer.site {
+      background: var(--dark);
+      color: #d8d2c4;
+      padding: 2.6rem 0 2.2rem;
+    }
+    footer.site h2 { color: #f3ead6; }
+    footer.site .muted { color: #9aa196; font-size: 0.95rem; }
+    footer.site a { color: #e3c56a; }
+
+    .toc-mobile { display: none; }
+
+    @media (max-width: 960px) {
+      .grid-2, .cards, .stats, .paths { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 760px) {
+      .nav-toggle { display: inline-flex; }
+      nav.links {
+        display: none;
+        position: absolute;
+        left: 0; right: 0; top: 100%;
+        background: #f3ecdc;
+        border-bottom: 1px solid var(--line);
+        padding: 0.7rem 1.25rem 1rem;
+        flex-direction: column;
+        gap: 0.55rem;
+      }
+      nav.links.open { display: flex; }
+      .grid-2, .cards, .stats, .paths { grid-template-columns: 1fr; }
+      .hero { padding-top: 2.2rem; }
+      .step { grid-template-columns: 1fr; }
+      .num { margin-top: 0; }
+      table { font-size: 0.9rem; display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#overview">Skip to content</a>
+  <header class="site">
+    <div class="bar">
+      <a class="brand" href="#overview">
+        <strong>Protocol Bonds</strong>
+        <span>Stacks Bitcoin Staking · Sep 2026</span>
+      </a>
+      <button class="nav-toggle ui" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav class="links" id="site-nav" aria-label="Sections">
+        <a href="#overview">Overview</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#live">Live snapshot</a>
+        <a href="#example">Example</a>
+        <a href="#waterfall">Yield waterfall</a>
+        <a href="#paths">Paths</a>
+        <a href="#risks">Risks</a>
+        <a href="#upsides">Upsides</a>
+        <a href="#sources">Sources</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <p class="kicker">A first briefing · Genesis Bond / PoX-5</p>
+      <h1>Earn bitcoin yield without lending your bitcoin.</h1>
+      <p class="lede">Stacks Bitcoin Staking lets you lock bitcoin on Bitcoin itself, pair it with a smaller STX lock on Stacks, and sit first in line for miner bitcoin already being spent to produce Stacks blocks. The structure is called a <strong>protocol bond</strong>. The first institutional run is the <strong>Genesis Bond</strong>.</p>
+      <div class="meta-row">
+        <div>Audience: <b>complete beginner, finance-literate</b></div>
+        <div>Figures as of <b>September 2026</b></div>
+        <div>Educational only · <b>not financial advice</b></div>
+      </div>
+    </div>
+
+    <section id="overview">
+      <div class="wrap">
+        <h2>What this instrument is</h2>
+        <p class="section-lead">If you have never heard of Stacks, start here. Every term is defined the first time it appears.</p>
+        <div class="grid-2">
+          <div class="prose">
+            <p><strong>Stacks</strong> is a blockchain that settles to Bitcoin. It does not try to replace Bitcoin. Its native token is <strong>STX</strong>. Since 2021, Stacks has used a consensus mechanism called <strong>Proof of Transfer (PoX)</strong>: people who want to produce Stacks blocks (miners) bid real bitcoin. That bitcoin is not burned. It is transferred to participants who help secure Stacks. Historically, that flow has distributed thousands of BTC.</p>
+            <p>A <strong>protocol bond</strong> is a dual lock. You lock bitcoin on Bitcoin Layer 1 (the main Bitcoin chain) and you lock a smaller amount of STX on Stacks. In return, you are first in line for a slice of the bitcoin miners are already paying. Yield is paid in bitcoin.</p>
+            <p>This is <strong>not</strong> lending. On the self-custodial path there is no borrower holding your BTC, no wrap, and no bridge. Your coins stay in a standard Bitcoin timelock under keys you control. The STX sleeve is “staking capacity”: it qualifies the bond. It does <em>not</em> earn the bond’s BTC yield.</p>
+            <p>The first institutional program using this design is the <strong>Genesis Bond</strong>, live under the current rule set called <strong>PoX-5</strong> (Stacks Improvement Proposal 045). A later upgrade, <strong>PoX-6</strong>, is expected to make participation permissionless.</p>
+          </div>
+          <div>
+            <aside class="callout key">
+              <p class="label">Key number</p>
+              <p>Target bootstrap yield is about <strong>3% BTC APY</strong> (annual percentage yield, measured on a 52,560-block Bitcoin year). A ~6-month bond therefore aims to pay about <strong>1.44% of locked BTC</strong> over the term — roughly half of 3%.</p>
+            </aside>
+            <aside class="callout ex" style="margin-top:0.85rem;">
+              <p class="label">What it is not</p>
+              <p>It is not CeFi lending, not a wrapped-BTC yield farm, and not a promise. The 3% figure is a <strong>managed target</strong> during bootstrap, not a coupon guaranteed by a balance sheet.</p>
+            </aside>
+            <aside class="callout dark" style="margin-top:0.85rem;">
+              <p class="label">Why Patrick might care later</p>
+              <p>Once the mechanics are clear, this is modelable: BTC locked, STX sleeve, coverage ratio, weekly waterfall, early-exit option, and two participation paths with different trust assumptions. This page is the briefing before a tracker.</p>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-it-works">
+      <div class="wrap">
+        <h2>How a bond works</h2>
+        <p class="section-lead">Six steps, in order. The concrete dollars and bitcoin amounts are in the <a href="#example">worked example</a>.</p>
+
+        <figure class="diagram" aria-label="Dual lock diagram">
+          <svg viewBox="0 0 760 220" role="img">
+            <title>BTC stays on Bitcoin; STX locks on Stacks; together they form a protocol bond</title>
+            <rect x="8" y="28" width="230" height="130" rx="12" fill="#f7f2e8" stroke="#c9bfa8"/>
+            <text x="123" y="58" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#8a6a1f" letter-spacing="1.4">BITCOIN L1</text>
+            <text x="123" y="88" text-anchor="middle" font-family="Newsreader, serif" font-size="20" fill="#161914">BTC timelock</text>
+            <text x="123" y="114" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#5b6156">Under your keys</text>
+            <text x="123" y="136" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#5b6156">CLTV / not bridged</text>
+
+            <rect x="265" y="28" width="230" height="130" rx="12" fill="#f7f2e8" stroke="#c9bfa8"/>
+            <text x="380" y="58" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#8a6a1f" letter-spacing="1.4">STACKS</text>
+            <text x="380" y="88" text-anchor="middle" font-family="Newsreader, serif" font-size="20" fill="#161914">STX lock</text>
+            <text x="380" y="114" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#5b6156">~5% of BTC value</text>
+            <text x="380" y="136" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#5b6156">Capacity, not BTC yield</text>
+
+            <rect x="522" y="28" width="230" height="130" rx="12" fill="#1b3a30"/>
+            <text x="637" y="58" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#d4b45a" letter-spacing="1.4">PROTOCOL BOND</text>
+            <text x="637" y="88" text-anchor="middle" font-family="Newsreader, serif" font-size="20" fill="#f7f2e8">~6 months</text>
+            <text x="637" y="114" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#d8d2c4">24 weekly BTC payouts</text>
+            <text x="637" y="136" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#d8d2c4">~3% BTC APY target</text>
+
+            <path d="M238 93 H265" stroke="#8a6a1f" stroke-width="1.5"/>
+            <path d="M495 93 H522" stroke="#8a6a1f" stroke-width="1.5"/>
+          </svg>
+          <figcaption>Two locks, two chains. Bitcoin never leaves Bitcoin on the self-custodial path.</figcaption>
+        </figure>
+
+        <div class="steps" style="margin-top:1.2rem;">
+          <article class="step">
+            <div class="num">1</div>
+            <div>
+              <h3>Commit BTC on Bitcoin, in a timelock</h3>
+              <p>You create a standard Bitcoin output (a <strong>UTXO</strong> — one discrete chunk of unspent bitcoin) that cannot be spent until a future block. The opcode is <strong>OP_CHECKLOCKTIMEVERIFY (CLTV)</strong>. The coins stay on Bitcoin under your keys. They are not wrapped and not bridged on the self-custodial path.</p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">2</div>
+            <div>
+              <h3>Lock STX worth about 5% of that BTC</h3>
+              <p>On Stacks you lock STX equal to roughly <strong>5% of the bitcoin’s dollar value</strong>. That STX is staking capacity. It qualifies the bond. It does <strong>not</strong> receive the bond’s BTC yield. Its dollar value can move while it is locked — that is a real risk, covered below.</p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">3</div>
+            <div>
+              <h3>Sit for about six months, paid weekly</h3>
+              <p>The bonding period is about <strong>6 months</strong>, or <strong>25,200 Bitcoin blocks</strong>. Rewards are designed to pay out about weekly — <strong>24 payouts</strong> over the term.</p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">4</div>
+            <div>
+              <h3>Collect a target ~3% BTC APY (if the target holds)</h3>
+              <p>During bootstrap, the target is about <strong>3% BTC APY</strong>, measured on a <strong>52,560-block Bitcoin year</strong>. One 6-month bond therefore delivers roughly <strong>1.44% of locked BTC</strong> in total if the target is met — about half of 3%.</p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">5</div>
+            <div>
+              <h3>Unlock. No slashing by design</h3>
+              <p>At maturity, BTC unlocks. The BTC timelock actually expires about <strong>10 days before</strong> period end so you can re-lock into the next period if you want. STX unlocks at term end. There is <strong>no slashing</strong>: principal is designed to return in full. (STX’s <em>price</em> can still have changed.)</p>
+            </div>
+          </article>
+          <article class="step">
+            <div class="num">6</div>
+            <div>
+              <h3>Or exit BTC early — and forfeit leftover yield</h3>
+              <p>You can reclaim BTC before maturity. Remaining undistributed yield is forfeited. The STX sleeve stays locked for the full term either way.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="live">
+      <div class="wrap">
+        <h2>What’s live right now</h2>
+        <p class="section-lead">Snapshot of the Genesis Bond as reported in September 2026. Two primary sources disagree slightly on enrolled BTC. Both are shown.</p>
+
+        <div class="stats">
+          <div class="stat">
+            <p class="label">Start</p>
+            <p class="fig">966,350</p>
+            <p>Bitcoin block, reward cycle 143 · about Sep 10, 2026</p>
+          </div>
+          <div class="stat">
+            <p class="label">Enrolled BTC</p>
+            <p class="fig">230 / 250</p>
+            <p>Muneeb Ali vs Stacks blog — see note</p>
+          </div>
+          <div class="stat">
+            <p class="label">First rewards</p>
+            <p class="fig">Sep 17</p>
+            <p>Weekly automated BTC payments thereafter</p>
+          </div>
+          <div class="stat">
+            <p class="label">Next window</p>
+            <p class="fig">Oct 10</p>
+            <p>Larger capacity expected · ~monthly periods</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="prose">
+            <h3>Muneeb Ali, September 9</h3>
+            <p>Demand sold out. About <strong>230 BTC</strong> enrolled, with roughly <strong>11.5 BTC-worth of STX</strong> locked for the bonds (that is the 5% sleeve). About <strong>20 million additional STX</strong> locked versus the prior cycle. Weekly automated BTC payments. Next bond around <strong>October 10</strong>, with larger capacity expected.</p>
+            <h3>Stacks blog, September 10</h3>
+            <p><strong>250 BTC</strong> bonded. Named participants: <strong>21Shares</strong>, <strong>HashKey Cloud</strong>, <strong>UTXO Management (Nakamoto)</strong>, and <strong>Sypher Capital</strong> (via StackingDAO). First rewards expected <strong>September 17</strong>.</p>
+          </div>
+          <aside class="callout note">
+            <p class="label">230 vs 250 BTC</p>
+            <p>These two figures were published a day apart and do not match. This page does not pick a winner. Treat enrolled size as “low-to-mid hundreds of BTC at launch,” and re-check primary sources before modeling a precise AUM. Possible causes include timing (in-flight deposits), rounding, or whether pooled capacity is counted the same way.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="example">
+      <div class="wrap">
+        <h2>Worked example: 1 BTC at $100,000</h2>
+        <p class="section-lead">Same numbers throughout the page so risks stay comparable. Prices are illustrative, not a forecast.</p>
+
+        <div class="callout key" style="margin-bottom:1.1rem; max-width: 48rem;">
+          <p class="label">Key number</p>
+          <p>If the 3% target holds, one 6-month bond on 1 BTC pays about <strong>0.0144 BTC</strong> (~$1,440), in ~24 weekly slices of <strong>0.0006 BTC</strong> (~$60). You also lock about <strong>$5,000 of STX</strong>.</p>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Amount</th>
+              <th>How it is derived</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>BTC locked</td>
+              <td class="numc">1.0000 BTC</td>
+              <td>Your principal on Bitcoin L1, timelocked</td>
+            </tr>
+            <tr>
+              <td>Assumed BTC price</td>
+              <td class="numc">$100,000</td>
+              <td>Round number for the briefing</td>
+            </tr>
+            <tr>
+              <td>STX sleeve</td>
+              <td class="numc">$5,000 of STX</td>
+              <td>5% × $100,000. Quantity of STX depends on the STX price that day</td>
+            </tr>
+            <tr>
+              <td>Target APY</td>
+              <td class="numc">3.00% BTC</td>
+              <td>Bootstrap target, 52,560-block Bitcoin year</td>
+            </tr>
+            <tr>
+              <td>Term yield if target holds</td>
+              <td class="numc">0.0144 BTC · $1,440</td>
+              <td>~Half a year of 3% → 1.44% × 1 BTC</td>
+            </tr>
+            <tr>
+              <td>Weekly slice (24 payouts)</td>
+              <td class="numc">0.0006 BTC · $60</td>
+              <td>0.0144 ÷ 24</td>
+            </tr>
+            <tr>
+              <td>At maturity</td>
+              <td class="numc">1 BTC back + paid yield</td>
+              <td>STX unlocks too. Its dollar value may have changed. No slashing of BTC principal by design</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="prose" style="margin-top:1.1rem; color: var(--muted); font-size: 1.02rem;">You do not get 3% in six months. You get about half of that if the target holds, because the bond is half a Bitcoin year. The STX never “earns the 3%.” The 3% is a bitcoin yield on the bitcoin lock.</p>
+      </div>
+    </section>
+
+    <section id="waterfall">
+      <div class="wrap">
+        <h2>Where the yield comes from</h2>
+        <p class="section-lead">Miners already bid BTC to produce Stacks blocks. That BTC fills a reward pool each roughly weekly cycle. Protocol bonds do not invent a new borrower. They sit at the top of an existing waterfall.</p>
+
+        <div class="grid-2">
+          <div>
+            <div class="waterfall">
+              <div class="tranche t1">
+                <div class="who">Tranche 1 · paid first</div>
+                <strong>Protocol bonds</strong>
+                <p>Paid at the bond’s target rate, before anyone else.</p>
+              </div>
+              <div class="tranche t2">
+                <div class="who">Tranche 2 · most of what’s left</div>
+                <strong>STX-only stakers</strong>
+                <p>Proposed share: about 85% of the remainder after bonds are paid.</p>
+              </div>
+              <div class="tranche t3">
+                <div class="who">Buffer</div>
+                <strong>Reserve · ~15% of excess</strong>
+                <p>Stores surplus to cover later shortfalls.</p>
+              </div>
+            </div>
+          </div>
+          <div class="prose">
+            <p><strong>Coverage ratio</strong> = reward pool ÷ bond obligations. The protocol aims for about <strong>2.0×</strong> coverage: two dollars of miner BTC for every dollar the bonds are owed that cycle.</p>
+            <p>If miner bids shrink, STX-only yield compresses first. Bond yield is the last thing to give. If stress continues and the reserve is empty, weekly bond payouts can still miss the target. Principal is still designed to return; the coupon is not guaranteed.</p>
+            <aside class="callout ex" style="margin-top:1rem;">
+              <p class="label">Example</p>
+              <p>Suppose a cycle owes bonds 1 BTC and miners paid in 2.2 BTC. Coverage is 2.2×. Bonds take their 1 BTC. Of the 1.2 BTC excess, about 85% (~1.02 BTC) goes to STX-only stakers and about 15% (~0.18 BTC) to the reserve.</p>
+            </aside>
+          </div>
+        </div>
+
+        <h3>Bootstrap (PoX-5) vs later (PoX-6)</h3>
+        <div class="cards" style="margin-top:0.8rem;">
+          <article class="card">
+            <p class="label">Now · PoX-5</p>
+            <h4>Managed bootstrap</h4>
+            <p>The Stacks Endowment manages capacity and the target rate. Self-custodial participation is <strong>whitelisted</strong>. New bonding periods are roughly monthly. Launch talk centered on about <strong>3,000 BTC</strong> of program capacity and a <strong>3%</strong> target.</p>
+          </article>
+          <article class="card">
+            <p class="label">Next · PoX-6</p>
+            <h4>Permissionless auction</h4>
+            <p>Expected on a roughly 6–12 month horizon. No whitelist. Rate and access would be set by auction rather than Endowment allocation.</p>
+          </article>
+          <article class="card">
+            <p class="label">Why it matters</p>
+            <h4>Access is a feature of the phase</h4>
+            <p>Until PoX-6, who can bond on the self-custodial path, and how large a book the program will take, is a policy decision — not an open market.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="paths">
+      <div class="wrap">
+        <h2>Two ways to participate</h2>
+        <p class="section-lead">Same economic idea, different trust assumptions. Roughly 10% of each period’s capacity is reserved for pools.</p>
+        <div class="paths">
+          <article class="path">
+            <span class="badge good">Self-custodial L1</span>
+            <h3>BTC stays in your timelock</h3>
+            <p>You timelock BTC under your own keys. During bootstrap this path is institutional / whitelist. Custody tooling mentioned in the ecosystem: Fireblocks, Fordefi, and Leather + Ledger.</p>
+            <p>No traditional borrower. No sBTC in the critical path. This is the cleaner instrument to model if you can get capacity.</p>
+          </article>
+          <article class="path">
+            <span class="badge warn">Pooled · open to anyone</span>
+            <h3>Via a pool, using sBTC</h3>
+            <p>Open through pools such as StackingDAO, Fast Pool, and Xverse. This path uses <strong>sBTC</strong> (a Stacks representation of bitcoin, secured by a signer set) plus a pool/operator. You inherit those trust assumptions. Fees mean net yield is often below the headline 3%.</p>
+            <aside class="callout ex" style="margin-top:0.85rem;">
+              <p class="label">Example</p>
+              <p>A ~5% fee on rewards turns a 3.00% headline into about <strong>2.85%</strong>. A fatter fee, or extra signer/pool drag, can land closer to <strong>2.5%</strong>.</p>
+            </aside>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="risks">
+      <div class="wrap">
+        <h2>Risks, each with numbers</h2>
+        <p class="section-lead">Keep the 1 BTC / $100,000 / $5,000 STX sleeve / $1,440 target-yield example in your head. That is the baseline “good case” coupon.</p>
+        <div class="risks">
+          <article class="risk">
+            <h3>1. Illiquidity for about six months</h3>
+            <p>Your BTC is timelocked. You can reclaim it early, but you give up yield that has not been paid yet. STX stays locked either way.</p>
+            <aside class="callout ex">
+              <p class="label">Example</p>
+              <p>You need cash in month 3. You have already received about 12 of 24 weekly slices (~$720). Early exit returns the 1 BTC and forfeits the remaining ~12 weeks (~$720 of target yield). You did not lose principal by design — you lost the unpaid coupon, and you still cannot unlock the STX sleeve until term end.</p>
+            </aside>
+          </article>
+          <article class="risk">
+            <h3>2. Yield is a target, not a guarantee</h3>
+            <p>Miner bids can fall. The reserve can be exhausted. Weekly payouts can then print below plan. BTC principal is still designed to return in full.</p>
+            <aside class="callout ex">
+              <p class="label">Example</p>
+              <p>Target term yield is 1.44% (0.0144 BTC / $1,440). If coverage fails for part of the term, you might earn <strong>1.0% over six months</strong> instead: 0.0100 BTC / $1,000. That is $440 less than plan — a 30% miss on the coupon, not on the bitcoin stack.</p>
+            </aside>
+          </article>
+          <article class="risk">
+            <h3>3. STX price exposure on the 5% sleeve</h3>
+            <p>You must hold STX for the term. The sleeve is small versus the BTC, but STX is more volatile. A hard dump can erase the bitcoin yield in dollar terms.</p>
+            <aside class="callout ex">
+              <p class="label">Example</p>
+              <p>$5,000 of STX falls 40% → sleeve worth $3,000 (−$2,000). The bond’s BTC yield was only ~$1,440 if the target held. The STX mark-to-market loss ($2,000) is larger than the coupon. If STX rises 40%, the sleeve is $7,000 (+$2,000) and the sleeve profit exceeds the coupon. The 3% is bitcoin-denominated; your <em>dollar</em> P&amp;L is not.</p>
+            </aside>
+          </article>
+          <article class="risk">
+            <h3>4. Reflexivity across the system</h3>
+            <p>BTC staking demand, STX demand and price, miner profitability, and the ability to pay bond yields all feed one another.</p>
+            <aside class="callout ex">
+              <p class="label">Example</p>
+              <p>STX crashes. Miners earn STX block rewards that are now worth less in BTC terms, so they bid less BTC into PoX. Coverage falls toward 1.0× and then below. STX-only yield goes first; if the reserve is thin, bond weekly prints compress. Lower advertised yield then cools new BTC inflows — or, if BTC inflows stay high while bids stay weak, coverage gets worse. It is a loop, not a single isolated risk.</p>
+            </aside>
+          </article>
+          <article class="risk">
+            <h3>5. Smart-contract and new-code risk</h3>
+            <p>The Bitcoin L1 timelock is a standard script. The Stacks-side distribution logic, and especially sBTC and pooled paths, are newer. New code can fail in ways a CLTV UTXO does not.</p>
+            <aside class="callout note">
+              <p class="label">How to think about it</p>
+              <p>Self-custodial L1 isolates BTC principal in a boring Bitcoin script. Yield routing and the STX lock live on Stacks. The pooled path adds sBTC signers and pool contracts on top. Risk concentrates where the code is newest, not in the timelock itself.</p>
+            </aside>
+          </article>
+          <article class="risk">
+            <h3>6. Bootstrap and access risk</h3>
+            <p>Until PoX-6, capacity and the whitelist are controlled by the Endowment. You can understand the bond and still be unable to buy the clean version of it.</p>
+            <aside class="callout ex">
+              <p class="label">Example</p>
+              <p>Launch discussion used a ~3,000 BTC program capacity. Genesis enrolled a few hundred BTC and sold out. If you are not on the whitelist, the live alternative is a pool: extra fees and extra trust, and only about 10% of each period reserved for that path.</p>
+            </aside>
+          </article>
+          <article class="risk">
+            <h3>7. Pooled-path specifics</h3>
+            <p>Not self-custodial. You rely on sBTC signers and the pool operator. Fees sit between you and the headline rate.</p>
+            <aside class="callout ex">
+              <p class="label">Example</p>
+              <p>Headline 3% APY after a ~5% fee on rewards is about <strong>2.85%</strong>. A heavier cut can land near <strong>2.5%</strong>. On the 1 BTC example, six-month gross target $1,440 becomes about $1,197–$1,368 net before any other drag.</p>
+            </aside>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="upsides">
+      <div class="wrap">
+        <h2>Why the design is interesting</h2>
+        <p class="section-lead">These are the features that make the instrument worth studying. They are not a recommendation to buy it.</p>
+        <div class="cards">
+          <article class="card">
+            <h4>BTC-denominated yield, self-custodial</h4>
+            <p>On the L1 path, yield is paid in bitcoin and principal stays in a Bitcoin timelock you control.</p>
+          </article>
+          <article class="card">
+            <h4>No lending counterparty</h4>
+            <p>You are not handing BTC to a borrower. You are inserting yourself at the top of a miner-paid waterfall that has been live since 2021.</p>
+          </article>
+          <article class="card">
+            <h4>Senior claim on miner BTC</h4>
+            <p>Bonds are tranche 1. STX-only stakers and the reserve absorb stress first.</p>
+          </article>
+          <article class="card">
+            <h4>Managed rate in bootstrap</h4>
+            <p>Capacity is sized to defend the target (talk of ~3,000 BTC and ~2.0× coverage). That is a policy choice, not a law of nature, and it goes away in a permissionless auction.</p>
+          </article>
+          <article class="card">
+            <h4>STX lock reduces float</h4>
+            <p>Bonding pulls STX out of circulation for the term. Genesis reportedly added ~20M STX locked versus the prior cycle, plus the ~11.5 BTC-worth sleeve on the bonds themselves.</p>
+          </article>
+          <article class="card">
+            <h4>Roadmap and rhetoric</h4>
+            <p>There is a stated path toward borrowing against staked BTC. Muneeb Ali has called this a “fed rate for bitcoin.” That is <strong>his claim, not a fact</strong> — useful as a framing, not as a description of what exists today.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site" id="sources">
+    <div class="wrap">
+      <h2>Primary sources</h2>
+      <p class="muted" style="max-width:40rem; margin-bottom:1.1rem;">Read these before treating any figure as final. This page is a briefing, not a substitute for the posts and the SIP.</p>
+      <ol class="src-list">
+        <li><a href="https://x.com/muneeb/status/2097802564045791321">Muneeb Ali — Genesis Bond sold-out note (Sep 9, 2026)</a></li>
+        <li><a href="https://www.stacks.co/blog/bitcoin-staking-genesis-bond-how-it-works">Stacks — Bitcoin staking Genesis Bond: how it works</a></li>
+        <li><a href="https://www.stacks.co/blog/the-genesis-bond-is-live-institutions-begin-bitcoin-staking-on-stacks">Stacks — The Genesis Bond is live</a></li>
+        <li><a href="https://www.stacks.co/blog/the-risk-profile-of-bitcoin-staking-explained">Stacks — The risk profile of bitcoin staking</a></li>
+        <li><a href="https://www.stacks.co/blog/bitcoin-staking-explained-how-it-works-on-stacks">Stacks — Bitcoin staking explained</a></li>
+        <li><a href="https://www.stacks.co/blog/bitcoin-staking-whitepaper-quick-overview">Stacks — Bitcoin staking whitepaper, quick overview</a></li>
+        <li><a href="https://www.stacks.co/blog/pooled-bitcoin-staking-on-stacks-how-it-works">Stacks — Pooled bitcoin staking</a></li>
+        <li><a href="https://github.com/stacksgov/sips/blob/main/sips/sip-045/sip-045-pox-5-bitcoin-staking.md">SIP-045 — PoX-5 Bitcoin staking</a></li>
+      </ol>
+      <p class="muted" style="margin-top:1.6rem;">Educational material only. Not financial, legal, or tax advice, and not an offer to sell any instrument. Figures are as of September 2026 and can change. The 230 vs 250 BTC launch size is unresolved on this page on purpose.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var btn = document.querySelector(".nav-toggle");
+      var nav = document.getElementById("site-nav");
+      if (!btn || !nav) return;
+      btn.addEventListener("click", function () {
+        var open = nav.classList.toggle("open");
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+        btn.textContent = open ? "Close" : "Menu";
+      });
+      nav.addEventListener("click", function (e) {
+        if (e.target.tagName === "A") {
+          nav.classList.remove("open");
+          btn.setAttribute("aria-expanded", "false");
+          btn.textContent = "Menu";
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

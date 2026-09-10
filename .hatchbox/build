@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+mkdir -p public
+cp index.html public/index.html
