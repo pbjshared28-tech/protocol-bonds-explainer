@@ -396,7 +396,7 @@
         <a href="#how-it-works">How it works</a>
         <a href="#live">Live snapshot</a>
         <a href="#example">Example</a>
-        <a href="#waterfall">Yield waterfall</a>
+        <a href="#waterfall">PoX &amp; yield</a>
         <a href="#paths">Paths</a>
         <a href="#risks">Risks</a>
         <a href="#upsides">Upsides</a>
@@ -632,20 +632,63 @@
     <section id="waterfall">
       <div class="wrap">
         <h2>Where the yield comes from</h2>
-        <p class="section-lead">Miners already bid BTC to produce Stacks blocks. That BTC fills a reward pool each roughly weekly cycle. Protocol bonds do not invent a new borrower. They sit at the top of an existing waterfall.</p>
+        <p class="section-lead">Start with how Stacks mining already moves bitcoin. The bond does not invent a new borrower. It sits first in line on that same miner-BTC pool.</p>
 
+        <h3 id="pox">How Stacks mining (PoX) works</h3>
+        <div class="grid-2">
+          <div class="prose">
+            <p>Since 2021, Stacks has used <strong>Proof of Transfer (PoX)</strong> instead of burning energy or burning bitcoin. People who want to produce Stacks blocks — <strong>miners</strong> — compete by bidding real BTC. The winning bids are what “pay” for the right to write the next Stacks blocks.</p>
+            <p>That BTC is <strong>transferred, not burned</strong>. It lands in a reward pool that settles on a roughly <strong>weekly cycle</strong>. The pool is the historical source of bitcoin yield for Stacks participants: the same flow has distributed thousands of BTC over the years, long before protocol bonds existed.</p>
+            <p>So the bitcoin you might later collect as a bondholder is not a loan repayment. It is miner spend that was already happening to produce Stacks blocks.</p>
+          </div>
+          <figure class="diagram" aria-label="PoX mining flow">
+            <svg viewBox="0 0 520 210" role="img">
+              <title>Miners bid BTC; that BTC fills a weekly pool; the pool pays Stacks participants</title>
+              <rect x="8" y="36" width="148" height="118" rx="12" fill="#f7f2e8" stroke="#c9bfa8"/>
+              <text x="82" y="68" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#8a6a1f" letter-spacing="1.2">STEP 1</text>
+              <text x="82" y="98" text-anchor="middle" font-family="Newsreader, serif" font-size="18" fill="#161914">Miners bid</text>
+              <text x="82" y="122" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#5b6156">BTC to mine</text>
+              <text x="82" y="140" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#5b6156">Stacks blocks</text>
+
+              <rect x="186" y="36" width="148" height="118" rx="12" fill="#f7f2e8" stroke="#c9bfa8"/>
+              <text x="260" y="68" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#8a6a1f" letter-spacing="1.2">STEP 2</text>
+              <text x="260" y="98" text-anchor="middle" font-family="Newsreader, serif" font-size="18" fill="#161914">Weekly pool</text>
+              <text x="260" y="122" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#5b6156">BTC transferred,</text>
+              <text x="260" y="140" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#5b6156">not burned</text>
+
+              <rect x="364" y="36" width="148" height="118" rx="12" fill="#1b3a30"/>
+              <text x="438" y="68" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#d4b45a" letter-spacing="1.2">STEP 3</text>
+              <text x="438" y="98" text-anchor="middle" font-family="Newsreader, serif" font-size="18" fill="#f7f2e8">Paid out</text>
+              <text x="438" y="122" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#d8d2c4">BTC yield for</text>
+              <text x="438" y="140" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="#d8d2c4">participants</text>
+
+              <path d="M156 95 H186" stroke="#8a6a1f" stroke-width="1.5"/>
+              <path d="M334 95 H364" stroke="#8a6a1f" stroke-width="1.5"/>
+            </svg>
+            <figcaption>PoX has moved miner bitcoin into a weekly reward pool since 2021. Bonds later take a senior slice of that same pool.</figcaption>
+          </figure>
+        </div>
+
+        <h3>How protocol bonds relate</h3>
+        <div class="prose" style="margin-bottom:1.25rem;">
+          <p>A protocol bond does <strong>not</strong> invent a new borrower and does not create a new pile of bitcoin. It inserts bondholders as <strong>Tranche 1 — the senior claim</strong> — on the miner-BTC pool that PoX already fills each cycle.</p>
+          <p>Each week the pool is poured in order. Bonds are paid first, toward the bond’s <strong>target rate</strong>. What remains is split: <strong>STX-only stakers</strong> get most of it (proposed about <strong>85% of the remainder</strong>), and a <strong>reserve</strong> keeps about <strong>15% of the excess</strong> to buffer later shortfalls.</p>
+          <p><strong>Coverage ratio</strong> = reward pool ÷ bond obligations. The protocol aims for about <strong>2.0×</strong> coverage: two units of miner BTC for every unit the bonds are owed that cycle. If miner bids shrink, STX-only yield compresses first. The bond coupon is last to give. Principal is still designed to return in full. The coupon is <strong>not guaranteed</strong>.</p>
+        </div>
+
+        <h3>The weekly waterfall</h3>
         <div class="grid-2">
           <div>
             <div class="waterfall">
               <div class="tranche t1">
-                <div class="who">Tranche 1 · paid first</div>
+                <div class="who">Tranche 1 · paid first · senior</div>
                 <strong>Protocol bonds</strong>
-                <p>Paid at the bond’s target rate, before anyone else.</p>
+                <p>Paid toward the bond’s target rate, before anyone else, from the same miner-BTC pool.</p>
               </div>
               <div class="tranche t2">
                 <div class="who">Tranche 2 · most of what’s left</div>
                 <strong>STX-only stakers</strong>
-                <p>Proposed share: about 85% of the remainder after bonds are paid.</p>
+                <p>Proposed share: about 85% of the remainder after bonds are paid. Compresses first if bids shrink.</p>
               </div>
               <div class="tranche t3">
                 <div class="who">Buffer</div>
@@ -655,9 +698,11 @@
             </div>
           </div>
           <div class="prose">
-            <p><strong>Coverage ratio</strong> = reward pool ÷ bond obligations. The protocol aims for about <strong>2.0×</strong> coverage: two dollars of miner BTC for every dollar the bonds are owed that cycle.</p>
-            <p>If miner bids shrink, STX-only yield compresses first. Bond yield is the last thing to give. If stress continues and the reserve is empty, weekly bond payouts can still miss the target. Principal is still designed to return; the coupon is not guaranteed.</p>
-            <aside class="callout ex" style="margin-top:1rem;">
+            <aside class="callout key">
+              <p class="label">Key number</p>
+              <p>Target coverage is about <strong>2.0×</strong>. That is a design aim for how full the weekly pool should be relative to bond obligations — not a promise that every cycle prints 2.0×.</p>
+            </aside>
+            <aside class="callout ex" style="margin-top:0.85rem;">
               <p class="label">Example</p>
               <p>Suppose a cycle owes bonds 1 BTC and miners paid in 2.2 BTC. Coverage is 2.2×. Bonds take their 1 BTC. Of the 1.2 BTC excess, about 85% (~1.02 BTC) goes to STX-only stakers and about 15% (~0.18 BTC) to the reserve.</p>
             </aside>
